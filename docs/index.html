@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>esp32sec - ESP32 security toolkit</title>
+  <meta name="description" content="Open-source toolkit for ESP32/ESP8266 firmware analysis, UART sniffing, and security posture checks." />
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --card: #14171c;
+      --border: #1f242c;
+      --fg: #e6e8eb;
+      --muted: #8a94a3;
+      --accent: #ff6b35;
+      --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 4rem 1.5rem; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    header { border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 3rem; }
+    .logo { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
+    h1 { font-size: 3rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+    .tag { color: var(--muted); font-size: 1.15rem; max-width: 60ch; }
+    .install {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin: 1.5rem 0;
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      overflow-x: auto;
+      white-space: pre;
+      color: var(--fg);
+    }
+    .install .comment { color: var(--muted); }
+    h2 { font-size: 1.5rem; margin-top: 3rem; margin-bottom: 1rem; }
+    .grid { display: grid; gap: 1rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--accent); }
+    .card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; font-family: var(--mono); color: var(--fg); }
+    .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+    }
+    footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }
+    .legal { background: rgba(255, 107, 53, 0.08); border-left: 3px solid var(--accent); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-top: 2rem; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo">zhameersheraz / esp32sec</div>
+      <h1>esp32sec</h1>
+      <p class="tag">ESP32 security toolkit. Firmware analysis, UART sniffing, partition parsing, and security posture checks for ESP32/ESP8266 hardware.</p>
+      <div class="install"><span class="comment"># install</span>
+git clone https://github.com/zhameersheraz/esp32sec.git
+cd esp32sec &amp;&amp; pip install -r requirements.txt</div>
+      <div class="badges">
+        <span class="badge">Python 3.10+</span>
+        <span class="badge">MIT license</span>
+        <span class="badge">esptool</span>
+        <span class="badge">UART hardware</span>
+      </div>
+    </header>
+
+    <h2>Tools</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>flash_dump.py</h3>
+        <p>Dump the full ESP32 flash over UART using esptool. Supports custom baud, size, and output path.</p>
+      </div>
+      <div class="card">
+        <h3>uart_sniffer.py</h3>
+        <p>Capture raw boot and runtime UART output (boot ROM uses 74880 baud, runtime is usually 115200).</p>
+      </div>
+      <div class="card">
+        <h3>firmware_inspect.py</h3>
+        <p>Quick-look at a dumped image: ESP32 magic, NVS markers, partition table, printable strings.</p>
+      </div>
+      <div class="card">
+        <h3>partition_table.py</h3>
+        <p>Parse the OTA / NVS / phy / spiffs partition table from a dump and label each entry by type and subtype.</p>
+      </div>
+      <div class="card">
+        <h3>secure_boot_check.py</h3>
+        <p>Heuristic check for secure boot and flash crypto state from a flash dump. Pairs with espefuse.py for ground truth.</p>
+      </div>
+    </div>
+
+    <h2>Quick start</h2>
+    <div class="install"><span class="comment"># 1. dump the flash</span>
+sudo python3 tools/flash_dump.py --port /dev/ttyUSB0 --output flash.bin
+
+<span class="comment"># 2. inspect it</span>
+python3 tools/firmware_inspect.py flash.bin --strings
+
+<span class="comment"># 3. read the partition table</span>
+python3 tools/partition_table.py flash.bin
+
+<span class="comment"># 4. sniff live UART during boot</span>
+sudo python3 tools/uart_sniffer.py --port /dev/ttyUSB0 --baud 74880</div>
+
+    <div class="legal">
+      <strong>Legal:</strong> only test against devices you own or have explicit written permission to test. The author is not responsible for misuse.
+    </div>
+
+    <footer>
+      esp32sec &middot; MIT &middot; by <a href="https://github.com/zhameersheraz">@zhameersheraz</a>
+    </footer>
+  </div>
+</body>
+</html>
