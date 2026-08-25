@@ -4,133 +4,510 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>esp32sec - ESP32 security toolkit</title>
-  <meta name="description" content="Open-source toolkit for ESP32/ESP8266 firmware analysis, UART sniffing, and security posture checks." />
+  <meta name="description" content="Open-source ESP32/ESP8266 firmware analysis and security toolkit. Flash dump, UART sniff, partition parse, secure boot check." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0d10;
-      --card: #14171c;
-      --border: #1f242c;
-      --fg: #e6e8eb;
-      --muted: #8a94a3;
-      --accent: #ff6b35;
-      --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, monospace;
-      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --bg: #0a0a0a;
+      --bg-grid: rgba(255, 255, 255, 0.025);
+      --card: #111114;
+      --card-hover: #15151a;
+      --border: #1f1f25;
+      --fg: #e8e8e8;
+      --muted: #6b7280;
+      --dim: #9ca3af;
+      --accent: #ff4d2e;
+      --accent-dim: rgba(255, 77, 46, 0.12);
+      --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      --display: 'Major Mono Display', 'JetBrains Mono', monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
       color: var(--fg);
       font-family: var(--sans);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      background-image:
+        linear-gradient(var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: -1px -1px;
     }
-    .wrap { max-width: 880px; margin: 0 auto; padding: 4rem 1.5rem; }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    header { border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 3rem; }
-    .logo { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
-    h1 { font-size: 3rem; margin: 0 0 0.5rem; letter-spacing: -0.02em; }
-    .tag { color: var(--muted); font-size: 1.15rem; max-width: 60ch; }
-    .install {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      margin: 1.5rem 0;
+    code, pre { font-family: var(--mono); }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .pixel { font-family: var(--display); letter-spacing: 0.02em; }
+    .badge {
+      display: inline-block;
       font-family: var(--mono);
-      font-size: 0.9rem;
-      overflow-x: auto;
-      white-space: pre;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--dim);
+    }
+    .badge.accent { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+    /* Header */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+      background: rgba(10, 10, 10, 0.75);
+      border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .brand { font-family: var(--display); font-size: 18px; color: var(--fg); }
+    .brand .dot { color: var(--accent); }
+    .nav { display: flex; gap: 28px; }
+    .nav a { color: var(--dim); font-size: 14px; font-weight: 500; }
+    .nav a:hover { color: var(--fg); text-decoration: none; }
+    .nav .btn { padding: 8px 16px; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; font-weight: 600; }
+    .nav .btn:hover { background: var(--accent-dim); }
+
+    /* Hero */
+    .hero {
+      padding: 100px 0 80px;
+      position: relative;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-tag::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent);
+    }
+    h1.hero-title {
+      font-family: var(--display);
+      font-size: clamp(56px, 9vw, 128px);
+      line-height: 1;
+      margin: 0 0 28px;
       color: var(--fg);
     }
-    .install .comment { color: var(--muted); }
-    h2 { font-size: 1.5rem; margin-top: 3rem; margin-bottom: 1rem; }
-    .grid { display: grid; gap: 1rem; }
+    h1.hero-title .accent { color: var(--accent); }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--dim);
+      max-width: 640px;
+      margin: 0 0 40px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0a;
+      font-weight: 600;
+      padding: 13px 22px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .btn-primary:hover { background: #ff5e42; text-decoration: none; }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--fg);
+      font-weight: 500;
+      padding: 13px 22px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .btn-ghost:hover { border-color: var(--accent); text-decoration: none; }
+    .stats {
+      display: flex;
+      gap: 56px;
+      padding: 24px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-num { font-family: var(--display); font-size: 28px; color: var(--accent); line-height: 1; }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    /* Section base */
+    section { padding: 100px 0; position: relative; }
+    .section-tag {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-tag::before {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: var(--accent);
+    }
+    h2 {
+      font-family: var(--display);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.05;
+      margin: 0 0 24px;
+      letter-spacing: -0.01em;
+    }
+    h2 .accent { color: var(--accent); }
+    .section-lede { font-size: 17px; color: var(--dim); max-width: 680px; margin: 0 0 56px; }
+
+    /* Tool grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 26px;
+      transition: all 0.2s;
+    }
+    .card:hover { background: var(--card-hover); border-color: var(--accent); transform: translateY(-2px); }
+    .card-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--accent);
       border-radius: 8px;
-      padding: 1.25rem 1.5rem;
-      transition: border-color 0.2s;
-    }
-    .card:hover { border-color: var(--accent); }
-    .card h3 { margin: 0 0 0.4rem; font-size: 1.05rem; font-family: var(--mono); color: var(--fg); }
-    .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
-    .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-    .badge {
+      color: var(--accent);
       font-family: var(--mono);
-      font-size: 0.75rem;
-      padding: 0.2rem 0.5rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      background: var(--accent-dim);
     }
-    footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.85rem; }
-    .legal { background: rgba(255, 107, 53, 0.08); border-left: 3px solid var(--accent); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-top: 2rem; font-size: 0.9rem; }
+    .card h3 { font-family: var(--mono); font-size: 16px; margin: 0 0 8px; color: var(--fg); font-weight: 600; }
+    .card p { font-size: 14px; color: var(--dim); margin: 0 0 18px; line-height: 1.55; }
+    .card-cmd { font-family: var(--mono); font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 6px 10px; border-radius: 4px; display: inline-block; }
+
+    /* Code block */
+    .terminal {
+      background: #050505;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .terminal-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      background: #0d0d10;
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #2a2a30; }
+    .terminal-dot.red { background: #ff5f57; }
+    .terminal-dot.yellow { background: #febc2e; }
+    .terminal-dot.green { background: #28c840; }
+    .terminal-title { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 8px; }
+    .terminal-body { padding: 22px 24px; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; overflow-x: auto; }
+    .terminal-body .c { color: var(--muted); }
+    .terminal-body .p { color: var(--accent); }
+    .terminal-body .o { color: var(--fg); }
+
+    /* Two-column */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .check-list { list-style: none; padding: 0; margin: 24px 0 0; }
+    .check-list li {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--fg);
+      font-size: 15px;
+    }
+    .check-list li::before {
+      content: '\2713';
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .check-list li .lbl { color: var(--muted); margin-right: 8px; }
+
+    /* Hardware chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      font-family: var(--mono);
+      font-size: 12px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--dim);
+    }
+    .chip.accent { color: var(--accent); border-color: var(--accent); background: var(--accent-dim); }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      padding: 80px 32px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .cta h2 { margin-bottom: 16px; }
+    .cta p { color: var(--dim); max-width: 520px; margin: 0 auto 32px; font-size: 16px; }
+
+    /* Legal banner */
+    .legal {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 14px;
+      color: var(--fg);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-top: 24px;
+    }
+    .legal::before { content: '\26A0'; flex-shrink: 0; }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--dim); }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 720px) {
+      .nav { display: none; }
+      .two-col { grid-template-columns: 1fr; gap: 32px; }
+      .stats { gap: 32px; flex-wrap: wrap; }
+      .hero { padding: 60px 0 40px; }
+      section { padding: 60px 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="logo">zhameersheraz / esp32sec</div>
-      <h1>esp32sec</h1>
-      <p class="tag">ESP32 security toolkit. Firmware analysis, UART sniffing, partition parsing, and security posture checks for ESP32/ESP8266 hardware.</p>
-      <div class="install"><span class="comment"># install</span>
-git clone https://github.com/zhameersheraz/esp32sec.git
-cd esp32sec &amp;&amp; pip install -r requirements.txt</div>
-      <div class="badges">
-        <span class="badge">Python 3.10+</span>
-        <span class="badge">MIT license</span>
-        <span class="badge">esptool</span>
-        <span class="badge">UART hardware</span>
-      </div>
-    </header>
 
-    <h2>Tools</h2>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="#" class="brand">esp32sec<span class="dot">.</span></a>
+    <nav class="nav">
+      <a href="#tools">Tools</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#hardware">Hardware</a>
+      <a href="https://github.com/zhameersheraz/esp32sec" class="btn" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-tag">v0.2 &middot; ESP32 &middot; ESP8266 &middot; OFFENSIVE SECURITY TOOLKIT</div>
+    <h1 class="hero-title pixel">esp32<span class="accent">.</span>sec</h1>
+    <p class="hero-sub">Firmware analysis, UART sniffing, partition parsing, and security posture checks for ESP32 and ESP8266 hardware. Five focused Python tools, one command-line flow.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="https://github.com/zhameersheraz/esp32sec" target="_blank" rel="noopener">View on GitHub</a>
+      <a class="btn-ghost" href="#workflow">See it work</a>
+    </div>
+    <div class="stats">
+      <div>
+        <div class="stat-num">5</div>
+        <div class="stat-label">Tools</div>
+      </div>
+      <div>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Python deps</div>
+      </div>
+      <div>
+        <div class="stat-num">MIT</div>
+        <div class="stat-label">License</div>
+      </div>
+      <div>
+        <div class="stat-num">ESP32</div>
+        <div class="stat-label">ESP8266 ready</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="section-tag">01 / TOOLS</div>
+    <h2>One toolkit,<br/><span class="accent">full attack surface.</span></h2>
+    <p class="section-lede">Five Python scripts that cover the basics of ESP32 hardware security research: read the flash, sniff the bus, parse the layout, and verify the boot chain.</p>
+
     <div class="grid">
       <div class="card">
+        <div class="card-icon">01</div>
         <h3>flash_dump.py</h3>
-        <p>Dump the full ESP32 flash over UART using esptool. Supports custom baud, size, and output path.</p>
+        <p>Read the full SPI flash over UART using esptool. Custom baud, size, and output path.</p>
+        <span class="card-cmd">sudo python3 flash_dump.py --port /dev/ttyUSB0</span>
       </div>
       <div class="card">
+        <div class="card-icon">02</div>
         <h3>uart_sniffer.py</h3>
-        <p>Capture raw boot and runtime UART output (boot ROM uses 74880 baud, runtime is usually 115200).</p>
+        <p>Capture raw boot-ROM and runtime UART output. Boot ROM uses 74880 baud, runtime 115200.</p>
+        <span class="card-cmd">python3 uart_sniffer.py --baud 74880</span>
       </div>
       <div class="card">
+        <div class="card-icon">03</div>
         <h3>firmware_inspect.py</h3>
-        <p>Quick-look at a dumped image: ESP32 magic, NVS markers, partition table, printable strings.</p>
+        <p>Quick-look at a flash image: ESP32 magic byte, NVS partition, printable strings.</p>
+        <span class="card-cmd">python3 firmware_inspect.py flash.bin --strings</span>
       </div>
       <div class="card">
+        <div class="card-icon">04</div>
         <h3>partition_table.py</h3>
-        <p>Parse the OTA / NVS / phy / spiffs partition table from a dump and label each entry by type and subtype.</p>
+        <p>Parse the partition table from a dump and label each entry by type (app/data) and subtype.</p>
+        <span class="card-cmd">python3 partition_table.py flash.bin</span>
       </div>
       <div class="card">
+        <div class="card-icon">05</div>
         <h3>secure_boot_check.py</h3>
-        <p>Heuristic check for secure boot and flash crypto state from a flash dump. Pairs with espefuse.py for ground truth.</p>
+        <p>Heuristic check for secure boot and flash crypto from a flash dump. Pairs with espefuse.py.</p>
+        <span class="card-cmd">python3 secure_boot_check.py flash.bin</span>
+      </div>
+      <div class="card" style="background: transparent; border-style: dashed; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 200px;">
+        <p style="margin: 0; color: var(--muted);">More tools coming.<br/>Open an issue with requests.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="workflow" style="background: linear-gradient(180deg, transparent 0%, rgba(255,77,46,0.02) 100%);">
+  <div class="wrap">
+    <div class="section-tag">02 / WORKFLOW</div>
+    <h2>Dump, inspect,<br/><span class="accent">understand.</span></h2>
+    <p class="section-lede">A typical flow: pull the firmware off the chip, look at what's inside, and figure out whether the device is doing what it claims.</p>
+
+    <div class="terminal">
+      <div class="terminal-head">
+        <span class="terminal-dot red"></span>
+        <span class="terminal-dot yellow"></span>
+        <span class="terminal-dot green"></span>
+        <span class="terminal-title">zsh &middot; ~/esp32sec</span>
+      </div>
+      <div class="terminal-body">
+<span class="c"># 1. Clone and install</span>
+<span class="p">$</span> git clone https://github.com/zhameersheraz/esp32sec.git
+<span class="p">$</span> <span class="o">cd</span> esp32sec &amp;&amp; pip install -r requirements.txt
+
+<span class="c"># 2. Dump the flash (4MB default, change with --size)</span>
+<span class="p">$</span> <span class="o">sudo</span> python3 tools/flash_dump.py --port /dev/ttyUSB0 --output flash.bin
+<span class="o">[+] esptool.py v4.7 --chip esp32 --port /dev/ttyUSB0 --baud 115200 read_flash 0x0 4MB flash.bin
+[...]</span>
+<span class="o">[+] Wrote flash.bin  (4194304 bytes)</span>
+
+<span class="c"># 3. What is in here?</span>
+<span class="p">$</span> <span class="o">python3</span> tools/firmware_inspect.py flash.bin --strings
+<span class="o">[+] Looks like a valid ESP32 image (magic 0xE9)
+[+] NVS partition found
+[+] Partition table found</span>
+
+<span class="c"># 4. Where are the partitions?</span>
+<span class="p">$</span> <span class="o">python3</span> tools/partition_table.py flash.bin
+<span class="o">name             type       subtype      offset     size       flags
+nvs              data       nvs          0x00090000 0x00006000 0x00
+phy_init         data       phy          0x000f0000 0x00001000 0x00
+factory          app        factory      0x00010000 0x00300000 0x00
+storage          data       spiffs       0x00390000 0x000f0000 0x00</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="hardware">
+  <div class="wrap">
+    <div class="section-tag">03 / HARDWARE</div>
+    <h2>You probably<br/><span class="accent">already have it.</span></h2>
+    <p class="section-lede">No custom dev board required. Any ESP32 dev kit and a $3 USB-to-UART bridge is enough to get started.</p>
+
+    <div class="two-col">
+      <div>
+        <h3 style="font-family: var(--display); font-size: 24px; margin: 0 0 12px;">Required</h3>
+        <ul class="check-list">
+          <li><span class="lbl">Target</span> ESP32 or ESP8266 dev board</li>
+          <li><span class="lbl">Bridge</span> USB-to-UART: CP2102, FTDI, CH340</li>
+          <li><span class="lbl">Host</span> Linux, macOS, or WSL</li>
+          <li><span class="lbl">Python</span> 3.10 or newer</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-family: var(--display); font-size: 24px; margin: 0 0 12px;">Recommended</h3>
+        <ul class="check-list">
+          <li><span class="lbl">Logic</span> Saleae or cheap USB logic analyzer</li>
+          <li><span class="lbl">Soldering</span> For non-dev-kit targets</li>
+          <li><span class="lbl">Multimeter</span> For verifying voltage levels</li>
+          <li><span class="lbl">JTAG</span> ESP-PROG for deeper debugging</li>
+        </ul>
       </div>
     </div>
 
-    <h2>Quick start</h2>
-    <div class="install"><span class="comment"># 1. dump the flash</span>
-sudo python3 tools/flash_dump.py --port /dev/ttyUSB0 --output flash.bin
-
-<span class="comment"># 2. inspect it</span>
-python3 tools/firmware_inspect.py flash.bin --strings
-
-<span class="comment"># 3. read the partition table</span>
-python3 tools/partition_table.py flash.bin
-
-<span class="comment"># 4. sniff live UART during boot</span>
-sudo python3 tools/uart_sniffer.py --port /dev/ttyUSB0 --baud 74880</div>
+    <div class="chips">
+      <span class="chip">ESP32</span>
+      <span class="chip">ESP32-S2</span>
+      <span class="chip">ESP32-S3</span>
+      <span class="chip">ESP32-C3</span>
+      <span class="chip">ESP8266</span>
+      <span class="chip accent">CP2102</span>
+      <span class="chip accent">FTDI FT232</span>
+      <span class="chip accent">CH340</span>
+    </div>
 
     <div class="legal">
-      <strong>Legal:</strong> only test against devices you own or have explicit written permission to test. The author is not responsible for misuse.
+      <span><strong>Only test devices you own</strong> or have explicit written permission to test. The author is not responsible for misuse. This toolkit is for authorized security research, education, and personal hardware auditing only.</span>
     </div>
-
-    <footer>
-      esp32sec &middot; MIT &middot; by <a href="https://github.com/zhameersheraz">@zhameersheraz</a>
-    </footer>
   </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="cta">
+      <div class="section-tag" style="justify-content: center;">04 / GET STARTED</div>
+      <h2>Three commands<br/><span class="accent">and you're in.</span></h2>
+      <p>Clone, install, and dump your first ESP32 flash in under a minute.</p>
+      <div class="hero-actions" style="justify-content: center; margin-bottom: 0;">
+        <a class="btn-primary" href="https://github.com/zhameersheraz/esp32sec" target="_blank" rel="noopener">Clone on GitHub</a>
+        <a class="btn-ghost" href="https://github.com/zhameersheraz/esp32sec#quick-start" target="_blank" rel="noopener">Read the docs</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <span>esp32sec &middot; MIT &middot; by <a href="https://github.com/zhameersheraz">@zhameersheraz</a></span>
+    <span>Built for authorized security research.</span>
+  </div>
+</footer>
+
 </body>
 </html>
