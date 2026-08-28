@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>esp32sec - ESP32 security toolkit</title>
-  <meta name="description" content="Open-source ESP32/ESP8266 firmware analysis and security toolkit with AI-assisted review. Flash dump, UART sniff, partition parse, secure boot check, LLM firmware review." />
+  <title>esp32sec — ESP32 security toolkit</title>
+  <meta name="description" content="Open-source ESP32/ESP8266 firmware analysis and security toolkit. Flash dump, UART sniff, partition parse, secure boot check." />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -464,7 +465,6 @@
     <nav class="nav" id="nav">
       <a href="#tools">Tools</a>
       <a href="#workflow">Workflow</a>
-      <a href="#ai">AI</a>
       <a href="#hardware">Hardware</a>
       <a href="https://github.com/zhameersheraz/esp32sec" class="btn" target="_blank" rel="noopener">GitHub</a>
     </nav>
@@ -478,7 +478,6 @@
   <div class="wrap">
     <div class="hero-tag">
       v0.6 &middot; ESP32 &middot; ESP8266 &middot; OFFENSIVE SECURITY TOOLKIT
-      <span class="badge ai">AI-assisted</span>
     </div>
     <h1 class="hero-title pixel">esp32<span class="accent">.</span>sec<span class="cursor">_</span></h1>
     <p class="hero-sub">Firmware analysis, UART sniffing, partition parsing, secure-boot checks, and AI-assisted string review for ESP32 and ESP8266 hardware. Six focused Python tools, one command-line flow.</p>
@@ -500,8 +499,8 @@
         <div class="stat-label">License</div>
       </div>
       <div>
-        <div class="stat-num">AI</div>
-        <div class="stat-label">LLM review</div>
+        <div class="stat-num">ESP32</div>
+        <div class="stat-label">ESP8266 ready</div>
       </div>
     </div>
     <div class="hero-img">
@@ -519,7 +518,7 @@
   <div class="wrap">
     <div class="section-tag">01 / TOOLS</div>
     <h2>One toolkit,<br/><span class="accent">full attack surface.</span></h2>
-    <p class="section-lede">Six Python scripts that cover the basics of ESP32 hardware security research: read the flash, sniff the bus, parse the layout, verify the boot chain, and let an LLM review what you found.</p>
+    <p class="section-lede">Six Python scripts that cover the basics of ESP32 hardware security research: read the flash, sniff the bus, parse the layout, verify the boot chain, and (optionally) let an LLM review the strings you pulled out.</p>
 
     <div class="grid">
       <div class="card">
@@ -552,11 +551,10 @@
         <p>Heuristic check for secure boot and flash crypto from a flash dump. Pairs with espefuse.py.</p>
         <span class="card-cmd">python3 secure_boot_check.py flash.bin</span>
       </div>
-      <div class="card ai-card">
-        <span class="card-tag">AI</span>
+      <div class="card">
         <div class="card-icon">06</div>
         <h3>llm_firmware_review.py</h3>
-        <p>Send extracted strings to OpenAI or Anthropic for a security review. Local heuristics flag obvious secrets first; the LLM catches the rest.</p>
+        <p>Optional: send extracted strings to OpenAI or Anthropic for a security review. Local heuristics flag obvious secrets first; the LLM catches the rest. Fully offline by default.</p>
         <span class="card-cmd">python3 llm_firmware_review.py flash.bin --provider openai</span>
       </div>
     </div>
@@ -608,58 +606,18 @@
 <span class="line"><span class="o">  [GitHub PAT]  ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span></span>
 <span class="line"><span class="o">  [Possible API key literal]  api_key = "AIzaSy..."</span></span>
 <span class="line"><span class="o">  [Hard-coded IP address]  192.168.4.1</span></span>
-<span class="line"><span class="ai">[+] Sending to openai for deeper review ...</span></span>
+<span class="line">&nbsp;</span>
+<span class="line"><span class="c"># 6. Optional: AI-assisted review (set OPENAI_API_KEY first)</span></span>
+<span class="line"><span class="p">$</span> <span class="o">export</span> OPENAI_API_KEY=sk-...</span>
+<span class="line"><span class="p">$</span> python3 tools/llm_firmware_review.py flash.bin --provider openai</span>
       </div>
-    </div>
-  </div>
-</section>
-
-<section id="ai">
-  <div class="wrap">
-    <div class="section-tag">03 / AI-ASSISTED</div>
-    <h2>An LLM in the<br/><span class="ai">review loop.</span></h2>
-    <p class="section-lede">Modern firmware is large, stringy, and full of false-positive noise. <code>llm_firmware_review.py</code> runs fast local pattern matching first, then sends a curated sample to an LLM for context-aware triage.</p>
-
-    <div class="two-col">
-      <div>
-        <h3 style="font-family: var(--display); font-size: 24px; margin: 0 0 12px;">Local-first</h3>
-        <ul class="check-list">
-          <li><span class="lbl">AWS keys</span> AKIA prefix match</li>
-          <li><span class="lbl">Google keys</span> AIza prefix match</li>
-          <li><span class="lbl">GitHub PATs</span> ghp_ prefix match</li>
-          <li><span class="lbl">Slack tokens</span> xox[abop]- match</li>
-          <li><span class="lbl">Private keys</span> PEM block header</li>
-          <li><span class="lbl">URLs w/ creds</span> scheme://user:pass@host</li>
-          <li><span class="lbl">Hardcoded IPs</span> IPv4 literal in strings</li>
-          <li><span class="lbl">Plaintext</span> telnet:// / ftp:// URLs</li>
-        </ul>
-      </div>
-      <div>
-        <h3 style="font-family: var(--display); font-size: 24px; margin: 0 0 12px;">LLM tier</h3>
-        <ul class="check-list">
-          <li><span class="lbl">OpenAI</span> gpt-4o-mini default</li>
-          <li><span class="lbl">Anthropic</span> claude-3-5-sonnet default</li>
-          <li><span class="lbl">Cost</span> 600 strings per call (truncated)</li>
-          <li><span class="lbl">Prompt</span> security-review tuned</li>
-          <li><span class="lbl">Output</span> bullets + cited strings</li>
-          <li><span class="lbl">Privacy</span> nothing sent unless you opt in</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="chips">
-      <span class="chip">OpenAI</span>
-      <span class="chip">Anthropic</span>
-      <span class="chip ai">GPT-4o-mini</span>
-      <span class="chip ai">Claude 3.5</span>
-      <span class="chip">100% local fallback</span>
     </div>
   </div>
 </section>
 
 <section id="hardware">
   <div class="wrap">
-    <div class="section-tag">04 / HARDWARE</div>
+    <div class="section-tag">03 / HARDWARE</div>
     <h2>You probably<br/><span class="accent">already have it.</span></h2>
     <p class="section-lede">No custom dev board required. Any ESP32 dev kit and a $3 USB-to-UART bridge is enough to get started.</p>
 
@@ -704,7 +662,7 @@
 <section>
   <div class="wrap">
     <div class="cta">
-      <div class="section-tag" style="justify-content: center;">05 / GET STARTED</div>
+      <div class="section-tag" style="justify-content: center;">04 / GET STARTED</div>
       <h2>Three commands<br/><span class="accent">and you're in.</span></h2>
       <p>Clone, install, and dump your first ESP32 flash in under a minute. Drop your LLM key in if you want the AI review pass.</p>
       <div class="hero-actions" style="justify-content: center; margin-bottom: 0;">

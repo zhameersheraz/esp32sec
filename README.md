@@ -8,21 +8,19 @@
   <a href="https://github.com/zhameersheraz/esp32sec/issues"><img src="https://img.shields.io/github/issues/zhameersheraz/esp32sec?style=for-the-badge" alt="Issues"></a>
   <img src="https://img.shields.io/badge/python-3.10%2B-ff4d2e?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/esp32-ready-ff4d2e?style=for-the-badge" alt="ESP32 ready">
-  <img src="https://img.shields.io/badge/AI-assisted-c084fc?style=for-the-badge" alt="AI-assisted">
 </p>
 
 <h1 align="center">esp32<span style="color:#ff4d2e">.</span>sec</h1>
 
 <p align="center">
-  <strong>ESP32 / ESP8266 firmware analysis and security toolkit with AI-assisted review.</strong><br>
-  Flash dump, UART sniff, partition parse, secure boot check, and LLM-powered string review.
+  <strong>ESP32 / ESP8266 firmware analysis and security toolkit.</strong><br>
+  Flash dump, UART sniff, partition parse, secure boot check. Optional LLM string review.
 </p>
 
 <p align="center">
   <a href="https://zhameersheraz.github.io/esp32sec/"><strong>Live site &rarr;</strong></a> &nbsp;&middot;&nbsp;
   <a href="#quick-start"><strong>Quick start</strong></a> &nbsp;&middot;&nbsp;
-  <a href="#tools"><strong>Tools</strong></a> &nbsp;&middot;&nbsp;
-  <a href="#ai-assisted-review"><strong>AI review</strong></a>
+  <a href="#tools"><strong>Tools</strong></a>
 </p>
 
 ---
@@ -66,37 +64,6 @@ LLM tier that turns hours of string-grepping into a 30-second review.
 | 05 | `tools/secure_boot_check.py`        | Heuristic check for secure boot / flash crypto state        |
 | 06 | `tools/llm_firmware_review.py`      | AI-assisted review: local patterns + OpenAI / Anthropic     |
 
-## AI-assisted review
-
-Firmware dumps contain thousands of strings, and most of them are noise. The
-last tool, `llm_firmware_review.py`, runs two passes:
-
-1. **Local heuristics** - matches known-secret regexes for AWS, Google, GitHub,
-   Slack, OpenAI, Stripe, PEM private keys, password literals, URLs with
-   embedded credentials, hard-coded IPs, plaintext `telnet://` / `ftp://` URLs.
-   Fast, offline, no API key needed.
-2. **LLM tier** - sends a curated slice of the remaining strings to OpenAI
-   (`gpt-4o-mini`) or Anthropic (`claude-3-5-sonnet`) with a security-review
-   prompt. The model cites the exact string it is flagging, and is
-   instructed to say "nothing stands out" if it has no findings.
-
-Nothing is sent to any cloud unless you opt in with `--provider openai` /
-`anthropic` AND have the API key set. The default (`--provider heuristic`)
-is fully offline.
-
-```bash
-# 1. Local only
-python3 tools/llm_firmware_review.py flash.bin
-
-# 2. OpenAI
-export OPENAI_API_KEY=sk-...
-python3 tools/llm_firmware_review.py flash.bin --provider openai
-
-# 3. Anthropic
-export ANTHROPIC_API_KEY=sk-ant-...
-python3 tools/llm_firmware_review.py strings.txt --provider anthropic
-```
-
 ## Quick start
 
 ```bash
@@ -118,7 +85,8 @@ python3 tools/secure_boot_check.py flash.bin
 # 5. Sniff live UART during boot
 sudo python3 tools/uart_sniffer.py --port /dev/ttyUSB0 --baud 74880
 
-# 6. AI-assisted review (optional, needs an API key)
+# 6. Optional: send the strings to an LLM for context-aware review
+#    (defaults to fully-offline heuristic if no provider is given)
 python3 tools/llm_firmware_review.py flash.bin --provider openai
 ```
 
@@ -152,12 +120,11 @@ esp32sec/
 │   ├── firmware_inspect.py
 │   ├── partition_table.py
 │   ├── secure_boot_check.py
-│   ├── llm_firmware_review.py    # AI-assisted review
+│   ├── llm_firmware_review.py    # optional: OpenAI / Anthropic
 │   └── __init__.py
 ├── LICENSE                       # MIT
 ├── README.md                     # this file
-├── requirements.txt              # core deps
-└── requirements-llm.txt          # (optional) openai / anthropic
+└── requirements.txt              # core deps
 ```
 
 ## Legal
