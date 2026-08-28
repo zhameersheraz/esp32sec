@@ -42,7 +42,7 @@
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
     code, pre { font-family: var(--mono); }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
     .pixel { font-family: var(--display); letter-spacing: 0.02em; }
     .badge {
       display: inline-block;
@@ -78,6 +78,7 @@
     .nav a:hover { color: var(--fg); text-decoration: none; }
     .nav .btn { padding: 8px 16px; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; font-weight: 600; }
     .nav .btn:hover { background: var(--accent-dim); }
+    .menu-btn { display: none; }
 
     .hero {
       padding: 80px 0 60px;
@@ -103,14 +104,15 @@
     }
     h1.hero-title {
       font-family: var(--display);
-      font-size: clamp(56px, 9vw, 128px);
+      font-size: clamp(48px, 9vw, 128px);
       line-height: 1;
       margin: 0 0 28px;
       color: var(--fg);
+      word-break: break-word;
     }
     h1.hero-title .accent { color: var(--accent); }
     .hero-sub {
-      font-size: 18px;
+      font-size: clamp(15px, 1.6vw, 18px);
       color: var(--dim);
       max-width: 640px;
       margin: 0 0 40px;
@@ -135,14 +137,15 @@
     }
     .btn-ghost:hover { border-color: var(--accent); text-decoration: none; }
     .stats {
-      display: flex;
-      gap: 56px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
       padding: 24px 0;
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
-    .stat-num { font-family: var(--display); font-size: 28px; color: var(--accent); line-height: 1; }
-    .stat-label { font-size: 12px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .stat-num { font-family: var(--display); font-size: clamp(22px, 3vw, 28px); color: var(--accent); line-height: 1; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.08em; }
 
     .hero-img {
       margin-top: 60px;
@@ -182,24 +185,24 @@
     }
     h2 {
       font-family: var(--display);
-      font-size: clamp(36px, 5vw, 56px);
+      font-size: clamp(32px, 5vw, 56px);
       line-height: 1.05;
       margin: 0 0 24px;
       letter-spacing: -0.01em;
     }
     h2 .accent { color: var(--accent); }
-    .section-lede { font-size: 17px; color: var(--dim); max-width: 680px; margin: 0 0 56px; }
+    .section-lede { font-size: clamp(15px, 1.6vw, 17px); color: var(--dim); max-width: 680px; margin: 0 0 56px; }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 16px;
     }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 28px 26px;
+      padding: 24px 22px;
       transition: all 0.2s;
     }
     .card:hover { background: var(--card-hover); border-color: var(--accent); transform: translateY(-2px); }
@@ -220,7 +223,7 @@
     }
     .card h3 { font-family: var(--mono); font-size: 16px; margin: 0 0 8px; color: var(--fg); font-weight: 600; }
     .card p { font-size: 14px; color: var(--dim); margin: 0 0 18px; line-height: 1.55; }
-    .card-cmd { font-family: var(--mono); font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 6px 10px; border-radius: 4px; display: inline-block; }
+    .card-cmd { font-family: var(--mono); font-size: 12px; color: var(--accent); background: var(--accent-dim); padding: 6px 10px; border-radius: 4px; display: inline-block; word-break: break-all; }
 
     .terminal {
       background: #050505;
@@ -232,16 +235,16 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: #0d0d10;
       border-bottom: 1px solid var(--border);
     }
-    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #2a2a30; }
+    .terminal-dot { width: 11px; height: 11px; border-radius: 50%; background: #2a2a30; }
     .terminal-dot.red { background: #ff5f57; }
     .terminal-dot.yellow { background: #febc2e; }
     .terminal-dot.green { background: #28c840; }
-    .terminal-title { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-left: 8px; }
-    .terminal-body { padding: 22px 24px; font-family: var(--mono); font-size: 13.5px; line-height: 1.7; overflow-x: auto; }
+    .terminal-title { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-left: 8px; }
+    .terminal-body { padding: 18px 20px; font-family: var(--mono); font-size: 13px; line-height: 1.7; overflow-x: auto; }
     .terminal-body .line { display: block; white-space: pre; }
     .terminal-body .c { color: var(--muted); }
     .terminal-body .p { color: var(--accent); }
@@ -268,7 +271,7 @@
       font-weight: 700;
       flex-shrink: 0;
     }
-    .check-list li .lbl { color: var(--muted); margin-right: 8px; }
+    .check-list li .lbl { color: var(--muted); margin-right: 8px; min-width: 80px; }
 
     .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
     .chip {
@@ -283,7 +286,7 @@
 
     .cta {
       text-align: center;
-      padding: 80px 32px;
+      padding: 60px 28px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -311,15 +314,61 @@
       color: var(--muted);
       font-size: 13px;
     }
+    footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
     footer a { color: var(--dim); }
     footer a:hover { color: var(--accent); }
 
-    @media (max-width: 720px) {
-      .nav { display: none; }
+    /* Tablet */
+    @media (max-width: 900px) {
+      .nav { gap: 18px; }
+      .nav a { font-size: 13px; }
       .two-col { grid-template-columns: 1fr; gap: 32px; }
-      .stats { gap: 32px; flex-wrap: wrap; }
+      section { padding: 80px 0; }
       .hero { padding: 60px 0 40px; }
+      .stats { gap: 24px; }
+    }
+
+    /* Mobile */
+    @media (max-width: 720px) {
+      .topbar-inner { height: 56px; }
+      .nav { display: none; position: absolute; top: 56px; right: 12px; left: 12px; flex-direction: column; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; z-index: 60; }
+      .nav.open { display: flex; }
+      .nav a { padding: 10px 12px; border-radius: 6px; }
+      .nav a:hover { background: var(--accent-dim); }
+      .nav .btn { text-align: center; margin-top: 4px; }
+      .menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--fg); cursor: pointer; }
+      .wrap { padding: 0 16px; }
+      .hero { padding: 40px 0 32px; }
+      .hero-tag { font-size: 12px; margin-bottom: 18px; }
+      h1.hero-title { margin-bottom: 20px; }
+      .hero-sub { margin-bottom: 28px; }
+      .hero-actions { margin-bottom: 36px; }
+      .hero-actions .btn-primary, .hero-actions .btn-ghost { flex: 1 1 auto; text-align: center; }
+      .stats { grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px 0; }
+      .stat-num { font-size: 24px; }
+      .hero-img { margin-top: 40px; border-radius: 12px; aspect-ratio: 4/3; }
       section { padding: 60px 0; }
+      .section-lede { margin-bottom: 36px; }
+      .grid { grid-template-columns: 1fr; gap: 12px; }
+      .card { padding: 22px 20px; }
+      .card-cmd { font-size: 11px; }
+      .terminal { border-radius: 8px; }
+      .terminal-head { padding: 10px 14px; }
+      .terminal-body { padding: 16px; font-size: 12px; }
+      .terminal-body .line { font-size: 12px; }
+      .chips { gap: 8px; }
+      .chip { font-size: 11px; padding: 6px 12px; }
+      .cta { padding: 48px 24px; }
+      .legal { padding: 14px 16px; font-size: 13px; }
+      .check-list li { font-size: 14px; flex-wrap: wrap; }
+      .check-list li .lbl { min-width: 0; }
+    }
+
+    /* Very small phones */
+    @media (max-width: 400px) {
+      h1.hero-title { font-size: 44px; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .terminal-body { font-size: 11px; }
     }
   </style>
 </head>
@@ -328,18 +377,21 @@
 <header class="topbar">
   <div class="wrap topbar-inner">
     <a href="#" class="brand">esp32sec<span class="dot">.</span></a>
-    <nav class="nav">
+    <nav class="nav" id="nav">
       <a href="#tools">Tools</a>
       <a href="#workflow">Workflow</a>
       <a href="#hardware">Hardware</a>
       <a href="https://github.com/zhameersheraz/esp32sec" class="btn" target="_blank" rel="noopener">GitHub</a>
     </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
   </div>
 </header>
 
 <section class="hero">
   <div class="wrap">
-    <div class="hero-tag">v0.3 &middot; ESP32 &middot; ESP8266 &middot; OFFENSIVE SECURITY TOOLKIT</div>
+    <div class="hero-tag">v0.5 &middot; ESP32 &middot; ESP8266 &middot; OFFENSIVE SECURITY TOOLKIT</div>
     <h1 class="hero-title pixel">esp32<span class="accent">.</span>sec</h1>
     <p class="hero-sub">Firmware analysis, UART sniffing, partition parsing, and security posture checks for ESP32 and ESP8266 hardware. Five focused Python tools, one command-line flow.</p>
     <div class="hero-actions">
@@ -514,11 +566,21 @@
 </section>
 
 <footer>
-  <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+  <div class="wrap">
     <span>esp32sec &middot; MIT &middot; by <a href="https://github.com/zhameersheraz">@zhameersheraz</a></span>
     <span>Built for authorized security research.</span>
   </div>
 </footer>
+
+<script>
+  // Mobile menu toggle
+  const btn = document.getElementById('menuBtn');
+  const nav = document.getElementById('nav');
+  if (btn && nav) {
+    btn.addEventListener('click', () => nav.classList.toggle('open'));
+    nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
+  }
+</script>
 
 </body>
 </html>
