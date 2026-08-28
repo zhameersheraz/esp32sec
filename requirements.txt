@@ -1,3 +1,9 @@
+# Required for the core tools
 esptool>=4.0
 pyserial>=3.5
 pycryptodome>=3.18
+
+# Optional: only needed for tools/llm_firmware_review.py
+# Install with: pip install -r requirements-llm.txt
+# openai>=1.30
+# anthropic>=0.30
