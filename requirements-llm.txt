@@ -1,0 +1,7 @@
+# Optional dependencies for tools/llm_firmware_review.py
+# The tool runs fully offline with its heuristic pass if neither is installed.
+#
+#   pip install -r requirements-llm.txt
+#
+openai>=1.30
+anthropic>=0.30

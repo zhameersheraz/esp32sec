@@ -29,8 +29,8 @@ def main():
         sys.exit(f"[-] Image too small for offset 0x{args.offset:x}")
 
     print(f"[+] Partition table at 0x{args.offset:x}")
-    print(f"{'name':<16} {'type':<10} {'subtype':<12} {'offset':<10} {'size':<10} {'flags'}")
-    print("-" * 70)
+    print(f"{'name':<16} {'type':<10} {'subtype':<12} {'offset':<12} {'size':<12} {'end'}")
+    print("-" * 74)
 
     for i in range(128):
         off = args.offset + i * ENTRY_SIZE
@@ -42,7 +42,6 @@ def main():
         ptype, psub = struct.unpack("<BB", chunk[2:4])
         offset = struct.unpack("<I", chunk[4:8])[0]
         size = struct.unpack("<I", chunk[8:12])[0]
-        flags = chunk[15]
         name = chunk[16:32].rstrip(b"\x00").decode("ascii", "replace")
         if ptype == 0xFF and psub == 0xFF:
             print(f"{'(end marker)':<16}")
@@ -53,7 +52,7 @@ def main():
         else:
             sub_str = SUBTYPES_DATA.get(psub, f"0x{psub:02x}")
         print(f"{name:<16} {type_str:<10} {sub_str:<12} "
-              f"0x{offset:08x}  0x{size:08x}  0x{flags:02x}")
+              f"0x{offset:08x}   0x{size:08x}   0x{offset + size:08x}")
 
 
 if __name__ == "__main__":

@@ -64,6 +64,19 @@ LLM tier that turns hours of string-grepping into a 30-second review.
 | 05 | `tools/secure_boot_check.py`        | Heuristic check for secure boot / flash crypto state        |
 | 06 | `tools/llm_firmware_review.py`      | AI-assisted review: local patterns + OpenAI / Anthropic     |
 
+## Tests
+
+The parsers are covered against a synthetic but structurally valid 4 MB flash
+image, so nothing needs hardware to verify a change:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+That checks the partition table parser against real ESP-IDF entry layouts and
+pins the ESP-IDF app-image header offsets, which is where this repo previously
+read `chip_id` from the wrong place.
+
 ## Quick start
 
 ```bash
